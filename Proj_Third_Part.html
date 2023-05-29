@@ -66,6 +66,18 @@
 	var textureBuffer;
 	var textureFaceBuffer
 	var textureFloorBuffer
+
+	// Mouse handle
+	var mouseDown = false;
+	var deltaFresh = false;
+							
+	var lastMouseX = null;
+	var lastMouseY = null; 
+	var currMouseX = null;
+	var currMouseY = null;
+	var deltaMouseX = 0;
+	var deltaMouseY = 0;
+	var rect;
 	 
 	function createGLContext(inCanvas) {
 		var outContext = null;
@@ -270,9 +282,9 @@
 		textureFloorBuffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, textureFloorBuffer);
 		var textureFloorCoordinates=[0.0,0.0,
-								1.0,0.0,
-								1.0,1.0,
-								0.0,1.0];
+									1.0,0.0,
+									1.0,1.0,
+									0.0,1.0];
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureFloorCoordinates),gl.STATIC_DRAW);  
 		textureFloorBuffer.itemSize = 2;
 
@@ -324,13 +336,17 @@
 
 
 		drawDog();
-		
-
 		drawSky();
-		// Συνολικής γωνία περιστροφή
-		totalAngle += 0.01; 
-		// Συνολικό ύψος περιστροφής
-		totalZ += 0.001;
+		drawFloor();
+		
+		if(!mouseDown){
+			totalAngle += 0.01; 
+			totalZ += 0.001;
+		}
+		if(mouseDown && deltaFresh){
+			totalAngle += (deltaMouseX*Math.PI/180.0);
+			totalZ -= (deltaMouseY/40);
+		}
 	}
 
 function preprocessTextureImage(imageURL, textureObject) {
@@ -357,8 +373,44 @@ function preprocessTextureImage(imageURL, textureObject) {
 		gl.clearColor(0.5, 0.5, 0.5, 1.0); 
 		gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 		gl.enable(gl.DEPTH_TEST);
-		drawScene(); 
+
+		canvas.onmousedown = handleMouseDown;
+		window.onmouseup = handleMouseUp;
+		canvas.onmousemove = handleMouseMove;
+		rect = canvas.getBoundingClientRect();
+
+		startAnimation();
 	 }
+
+	function handleMouseDown(event) {
+		mouseDown = true;
+		lastMouseX = event.clientX - rect.left;
+		lastMouseY = rect.bottom - event.clientY;
+		deltaMouseX = 0;
+		deltaMouseY = 0;
+		deltaFresh = true;	
+	}
+
+	function handleMouseUp(event) {
+		mouseDown = false;
+	}
+
+	function handleMouseMove(event) {
+		currMouseX = event.clientX - rect.left;
+		currMouseY = rect.bottom - event.clientY;
+		document.getElementById("mouseX").innerHTML = currMouseX;
+		document.getElementById("mouseY").innerHTML = currMouseY;
+
+		if (mouseDown)
+		{
+			deltaMouseX = currMouseX - lastMouseX;
+			deltaMouseY = currMouseY - lastMouseY;
+			deltaFresh = true;
+		}
+
+		lastMouseX = currMouseX;
+		lastMouseY = currMouseY;
+	}
 
 	function getCords(){
 		var txtViewDistance;
@@ -454,8 +506,9 @@ function preprocessTextureImage(imageURL, textureObject) {
 		glMatrix.mat4.fromScaling(scalingMatrix,[500,500,500]);
 		gl.uniformMatrix4fv(verticesTransformUniformPointer, false, scalingMatrix); 
 		gl.drawElements(gl.TRIANGLES,indexBuffer.itemCount,gl.UNSIGNED_SHORT, 0);
+	}
 
-		// Πάτωμα
+	function drawFloor(){
 		gl.bindBuffer(gl.ARRAY_BUFFER, floorVBuffer); 
 		gl.vertexAttribPointer(vertexPositionAttributePointer, floorVBuffer.itemSize, gl.FLOAT, false, 0, 0);
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, floorIBuffer);
@@ -469,8 +522,10 @@ function preprocessTextureImage(imageURL, textureObject) {
 		var scalingMatrix = new Float32Array(16);
 		glMatrix.mat4.fromScaling(scalingMatrix,[15,15,1]);
 		gl.uniformMatrix4fv(verticesTransformUniformPointer, false, scalingMatrix); 
+		gl.polygonOffset(-1.0,-1.0);
+		gl.enable(gl.POLYGON_OFFSET_FILL);
 		gl.drawElements(gl.TRIANGLES,floorIBuffer.itemCount,gl.UNSIGNED_SHORT, 0);  
-
+		gl.disable(gl.POLYGON_OFFSET_FILL);
 	}
 
 	function drawPart(scaleVector, translateVector){
@@ -525,6 +580,7 @@ function preprocessTextureImage(imageURL, textureObject) {
 <br>
 <button id="startButton" onclick="startAnimation()">Ξεκίνα!</button>
 <button id="stopButton" onclick="stopAnimation()">Σταμάτα!</button>
+Θέση ποντικιού στον καμβά x:<span id="mouseX">--</span>,y:<span id="mouseY">--</span>
 </p>
 
 
