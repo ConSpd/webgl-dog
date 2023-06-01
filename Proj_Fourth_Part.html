@@ -94,6 +94,7 @@
 	var rotateFactor = 0;
 	var legConstant = 0.05;
 	var move = 0.0;
+	var feetConstant = 0.1;
 
 	function createGLContext(inCanvas) {
 		var outContext = null;
@@ -364,10 +365,16 @@
 
 		enableBodyTexture();
 
-		drawDog();
+		if(document.getElementById('static-walk').checked || document.getElementById('walk').checked)
+			walkAnimation();
+		else if (document.getElementById('sausage').checked)
+			sausageAnimation();
+		else if (document.getElementById('breakdown').checked)
+			breakdownAnimation();
+		else
+			drawDog();
 		drawSky();
 		drawFloor();
-		// animations();
 		
 		if(!mouseDown && requestID){
 			totalAngle += 0.01; 
@@ -379,7 +386,7 @@
 		}
 	}
 
-	// Δημιουργία του Σκυλιού
+	// Δημιουργία του Σκυλιού, περιέχει Wave-Sit-Head-Tail Animations
 	function drawDog(){
 		if(document.getElementById("sit").checked){
 			offset = 8;
@@ -397,46 +404,21 @@
 				rAngle = Math.PI/2;
 			else if(rAngle < 0)
 				rAngle = 0;
-		}else if(document.getElementById('walk').checked){
-			offset += 0.1;
-			move += 0.1;
 		}else{
 			offset = 0;
 			rAngle = 0
 		}
-		if(automated){
-			rotateFactor += legConstant;
-			if(rotateFactor >= Math.PI/2 || rotateFactor <= -Math.PI/2)
-				legConstant *= -1;
-		}
-
 		
 		enableBodyTexture();
-		if(document.getElementById('static-walk').checked || document.getElementById('walk').checked){
-			rotateFactor *= -1;
-			// Πόδι
-			movePart([0,1.5,-3], [4.5,-8+offset,8], [1.5,1.5,3], [1,0,0]);
-			// Πατούσα
-			movePart([0,2.5,-7], [4.5,-8+offset,8], [1.5,2.5,1], [1,0,0]);
-		}else{
-			// Δεξί Πίσω Πόδι
-			drawPart([1.5,1.5,3], [4.5,-6.5+offset,5], rAngle);
-			// Πίσω Δεξιά Πατούσα
-			drawPart([1.5,2.5,1], [4.5,-5.5+offset,1], rAngle);
-		}
-
-		if(document.getElementById('static-walk').checked || document.getElementById('walk').checked){
-			rotateFactor *= -1;
-			// Πόδι
-			movePart([0,1.5,-3], [-4.5,-8+offset,8], [1.5,1.5,3], [1,0,0]);
-			// Πατούσα
-			movePart([0,2.5,-7], [-4.5,-8+offset,8], [1.5,2.5,1], [1,0,0]);
-		}else{
-			// Αριστερό Πίσω Πόδι
-			drawPart([1.5,1.5,3], [-4.5,-6.5+offset,5], rAngle);
-			// Πίσω Αριστερή Πατούσα
-			drawPart([1.5,2.5,1], [-4.5,-5.5+offset,1], rAngle);
-		}
+		// Δεξί Πίσω Πόδι
+		drawPart([1.5,1.5,3], [4.5,-6.5+offset,5], rAngle);
+		// Πίσω Δεξιά Πατούσα
+		drawPart([1.5,2.5,1], [4.5,-5.5+offset,1], rAngle);
+	
+		// Αριστερό Πίσω Πόδι
+		drawPart([1.5,1.5,3], [-4.5,-6.5+offset,5], rAngle);
+		// Πίσω Αριστερή Πατούσα
+		drawPart([1.5,2.5,1], [-4.5,-5.5+offset,1], rAngle);
 		
 		// Αριστερό Μπροστά Πόδι
 		if(document.getElementById('waveleft').checked){
@@ -445,15 +427,7 @@
 			movePart([0,1.5,-3], [-4.5,3,8], [1.5,1.5,3], [1,0,0]);
 			// Πατούσα
 			movePart([0,2.5,-7], [-4.5,3,8], [1.5,2.5,1], [1,0,0]);
-		}
-		else if(document.getElementById('static-walk').checked || document.getElementById('walk').checked){
-			rotateFactor *= -1;
-			// Πόδι
-			movePart([0,1.5,-3], [-4.5,3+offset,8], [1.5,1.5,3], [1,0,0]);
-			// Πατούσα
-			movePart([0,2.5,-7], [-4.5,3+offset,8], [1.5,2.5,1], [1,0,0]);
-		}
-		else{
+		}else{
 			drawPart([1.5,1.5,3], [-4.5,4.5+offset,5], rAngle); // Πόδι
 			drawPart([1.5,2.5,1], [-4.5,5.5+offset,1], rAngle); // Μπροστά Αριστερή Πατούσα
 		}
@@ -465,12 +439,6 @@
 			movePart([0,1.5,-3], [4.5,3,8], [1.5,1.5,3], [1,0,0]); // 0 for x rotation
 			// Πατούσα
 			movePart([0,2.5,-7], [4.5,3,8], [1.5,2.5,1], [1,0,0]);
-		}else if(document.getElementById('static-walk').checked || document.getElementById('walk').checked){
-			rotateFactor *= -1;
-			// Πόδι
-			movePart([0,1.5,-3], [4.5,3+offset,8], [1.5,1.5,3], [1,0,0]); // 0 for x rotation
-			// Πατούσα
-			movePart([0,2.5,-7], [4.5,3+offset,8], [1.5,2.5,1], [1,0,0]);
 		}else{
 			drawPart([1.5,1.5,3], [4.5,4.5+offset,5], rAngle); // Πόδι
 			drawPart([1.5,2.5,1], [4.5,5.5+offset,1], rAngle); // Μπροστά Δεξιά Πατούσα
@@ -483,7 +451,6 @@
 			setAngleLimits(0,Math.PI);
 			movePart([0,1,2.5], [0,-8+offset,10], [1,1,2.5], [1,0,0]);	
 		}
-		
 
 		// Κορμός
 		drawPart([3,7,2.5], [0,-1+offset+move,7.5], rAngle);
@@ -491,12 +458,11 @@
 		// Λαιμος
 		drawPart([2,2,1.5], [0,4+offset+move,11.5], rAngle);
 		
-		if(!document.getElementById("head").checked || document.getElementById('walk').checked){
+		if(!document.getElementById("head").checked){
 			// Δεξί Αυτί
 			drawPart([1,1,2.5], [-4,3+offset+move,14.5], rAngle);
 			// Αριστερό Αυτί
 			drawPart([1,1,2.5], [4,3+offset+move,14.5], rAngle);
-
 			// Ενεργοποιείται το texture προσώπου
 			enableFaceTexture();
 			// Κεφάλι
@@ -512,6 +478,153 @@
 			enableFaceTexture();
 			movePart([0,2,0],[0,4,15],[3,4,2], [0,0,1]); // 2 for z rotation
 		}
+	} 
+
+	function walkAnimation(){
+		if(document.getElementById('walk').checked)
+			move += 0.2;
+		else
+			move = 0;
+		
+		if(automated){
+			rotateFactor += legConstant;
+			if(rotateFactor >= Math.PI/2 || rotateFactor <= -Math.PI/2)
+				legConstant *= -1;
+		}
+		enableBodyTexture();
+
+		rotateFactor *= -1;
+		// Δεξί Πίσω Πόδι
+		movePart([0,1.5,-3], [4.5,-8+move,8], [1.5,1.5,3], [1,0,0]);
+		// Δεξιά Πίσω Πατούσα
+		movePart([0,2.5,-7], [4.5,-8+move,8], [1.5,2.5,1], [1,0,0]);
+
+		rotateFactor *= -1;
+		// Αριστερό Πίσω Πόδι
+		movePart([0,1.5,-3], [-4.5,-8+move,8], [1.5,1.5,3], [1,0,0]);
+		// Αριστερή Πίσω Πατούσα
+		movePart([0,2.5,-7], [-4.5,-8+move,8], [1.5,2.5,1], [1,0,0]);
+
+		rotateFactor *= -1;
+		// Αριστερό Μπροστά Πόδι
+		movePart([0,1.5,-3], [-4.5,3+move,8], [1.5,1.5,3], [1,0,0]);
+		// Αριστερή Μπροστά Πατούσα
+		movePart([0,2.5,-7], [-4.5,3+move,8], [1.5,2.5,1], [1,0,0]);
+
+		rotateFactor *= -1;
+		// Δεξί Μπροστά Πόδι
+		movePart([0,1.5,-3], [4.5,3+move,8], [1.5,1.5,3], [1,0,0]); // 0 for x rotation
+		// Δεξιά Μπροστά Πατούσα
+		movePart([0,2.5,-7], [4.5,3+move,8], [1.5,2.5,1], [1,0,0]);
+
+		// Ουρά
+		drawPart([1,1,2.5], [0,-7+move,12.5], rAngle);
+
+		// Κορμός
+		drawPart([3,7,2.5], [0,-1+move,7.5], rAngle);
+
+		// Λαιμος
+		drawPart([2,2,1.5], [0,4+move,11.5], rAngle);
+
+		// Δεξί Αυτί
+		drawPart([1,1,2.5], [-4,3+move,14.5], rAngle);
+		// Αριστερό Αυτί
+		drawPart([1,1,2.5], [4,3+move,14.5], rAngle);
+
+		// Ενεργοποιείται το texture προσώπου
+		enableFaceTexture();
+		// Κεφάλι
+		drawPart([3,4,2], [0,6+move,15], rAngle);
+	}
+
+	function sausageAnimation(){
+		move += 0.1;
+		enableBodyTexture();
+		// Δεξί Πίσω Πόδι
+		drawPart([1.5,1.5,3], [4.5,-6.5-move,5], rAngle);
+		// Πίσω Δεξιά Πατούσα
+		drawPart([1.5,2.5,1], [4.5,-5.5-move,1], rAngle);
+	
+		// Αριστερό Πίσω Πόδι
+		drawPart([1.5,1.5,3], [-4.5,-6.5-move,5], rAngle);
+		// Πίσω Αριστερή Πατούσα
+		drawPart([1.5,2.5,1], [-4.5,-5.5-move,1], rAngle);
+		
+		// Αριστερό Μπροστά Πόδι
+		drawPart([1.5,1.5,3], [-4.5,4.5+move,5], rAngle); // Πόδι
+		drawPart([1.5,2.5,1], [-4.5,5.5+move,1], rAngle); // Μπροστά Αριστερή Πατούσα
+	
+		
+		// Δεξί Μπροστά Πόδι
+		drawPart([1.5,1.5,3], [4.5,4.5+move,5], rAngle); // Πόδι
+		drawPart([1.5,2.5,1], [4.5,5.5+move,1], rAngle); // Μπροστά Δεξιά Πατούσα
+		
+		// Ουρα
+		drawPart([1,1,2.5], [0,-7-move,12.5], rAngle);
+
+		// Κορμός
+		drawPart([3,7+move,2.5], [0,-1,7.5], rAngle);
+
+		// Λαιμος
+		drawPart([2,2,1.5], [0,4+move,11.5], rAngle);
+		
+		// Δεξί Αυτί
+		drawPart([1,1,2.5], [-4,3+move,14.5], rAngle);
+		// Αριστερό Αυτί
+		drawPart([1,1,2.5], [4,3+move,14.5], rAngle);
+		// Ενεργοποιείται το texture προσώπου
+		enableFaceTexture();
+		// Κεφάλι
+		drawPart([3,4,2], [0,6+move,15], rAngle);
+	}
+
+	function breakdownAnimation(){
+		if(move >= Math.PI || move < 0)
+			feetConstant *= -1
+		move += feetConstant*2;
+		rotateFactor+=0.1;
+
+		enableBodyTexture();
+		// Δεξί Πίσω Πόδι
+		movePart([0,1.5,-3], [4.5,-8+move,8], [1.5,1.5,3], [1,0,0]);
+		// Πίσω Δεξιά Πατούσα
+		drawPart([1.5+move,2.5+move,1], [4.5,-5.5,1], rAngle);
+	
+		// Αριστερό Πίσω Πόδι
+		movePart([0,1.5,-3], [-4.5,-8+move,8], [1.5,1.5,3], [1,0,0]);
+		// Πίσω Αριστερή Πατούσα
+		drawPart([1.5+move,2.5+move,1], [-4.5,-5.5,1], rAngle);
+		
+		// Αριστερό Μπροστά Πόδι
+		movePart([0,1.5,-3], [-4.5,3+move,8], [1.5,1.5,3], [0,1,0]);
+		drawPart([1.5+move,2.5+move,1], [-4.5,5.5,1], rAngle); // Μπροστά Αριστερή Πατούσα
+		
+		// Δεξί Μπροστά Πόδι
+		movePart([0,1.5,-3], [4.5,3+move,8], [1.5,1.5,3], [0,1,0]); // Πόδι
+		drawPart([1.5+move,2.5+move,1], [4.5,5.5,1], rAngle); // Μπροστά Δεξιά Πατούσα
+
+		// Κορμός
+		movePart([0,0,0], [0,-1,7.5], [3,7,2.5], [0,1,0]);
+
+		// Λαιμος
+		drawPart([2,2,1.5], [0,4+move,11.5], rAngle);
+
+		var tmp = rotateFactor;
+		rotateFactor = move;
+		// Ουρα
+		setAngleLimits(0,Math.PI);
+		movePart([0,1,2.5], [0,-8,10], [1,1,2.5], [1,0,0]);	
+
+		setAngleLimits(-Math.PI/2,Math.PI/2);
+		rotateFactor = tmp;
+		// Δεξί Αυτί
+		movePart([-4,-1,0],[0,4,14.5],[1,1,2.5], [0,0,1]); // 2 for z rotation
+		// Αριστερό Αυτί
+		movePart([4,-1,0],[0,4,14.5],[1,1,2.5], [0,0,1]); // 2 for z rotation
+
+		// Κεφάλι
+		enableFaceTexture();
+		movePart([0,2,0],[0,4,15],[3,4,2], [0,0,1]); // 2 for z rotation
 	}
 
 	function setAngleLimits(lower, upper){
@@ -752,10 +865,12 @@
 	<input type="radio" name="body" id="tail" onclick="wheelRadiusFactor=0; automated=false; move=0;">Ουρά&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<input type="radio" name="body" id="head" onclick="wheelRadiusFactor=0; automated=false; move=0;">Κεφάλι&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<input type="radio" name="body" id="waveright" onclick="wheelRadiusFactor=0; automated=false; move=0;">Χαιρετισμός - δεξί πόδι&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="radio" name="body" id="waveleft" onclick="wheelRadiusFactor=0; automated=false;move=0;">Χαιρετισμός - αριστερό πόδι&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="radio" name="body" id="waveleft" onclick="wheelRadiusFactor=0; automated=false;move=0;">Χαιρετισμός - αριστερό πόδι<br>
 	<input type="radio" name="body" id="sit" onclick="wheelRadiusFactor=0;userHandle=false;move=0;">Κάθισμα-Σούζα&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="radio" name="body" id="static-walk" onclick="automated=true;rotateFactor=0;move=0;">Στατικό-Περπάτημα&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="radio" name="body" id="walk" onclick="automated=true;rotateFactor=0;offset=1;move=0;">Κανονικό-Περπάτημα
+	<input type="radio" name="body" id="static-walk" onclick="automated=true;rotateFactor=0;move=0;rAngle=0;">Στατικό-Περπάτημα&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="radio" name="body" id="walk" onclick="automated=true;rotateFactor=0;offset=0;move=0;rAngle=0;">Κανονικό-Περπάτημα&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="radio" name="body" id="sausage" onclick="automated=true;rotateFactor=0;offset=0;move=0;">Λουκάνικο&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="radio" name="body" id="breakdown" onclick="automated=true;rotateFactor=0;offset=0;move=0;">Breakdown
 </form>
 
 
