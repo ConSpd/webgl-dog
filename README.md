@@ -1,3 +1,4 @@
+# WebGL Dog
 This project walks through the creation of a 3D Dog with animation capabilities using Javascript's **WebGL** API.
 
 ### First Stage
